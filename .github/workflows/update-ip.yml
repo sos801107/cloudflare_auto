@@ -9,47 +9,76 @@ jobs:
   update-ip:
     runs-on: ubuntu-latest
     steps:
+      # 1. 检出代码（使用自动生成的GITHUB_TOKEN）
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false  # 确保提交权限正确
 
+      # 2. 获取新的代理IP
       - name: Fetch New Proxy IP
         id: get_ip
         run: |
           # 调用 API 获取新 IP
           NEW_IP=$(curl -s "https://ipdb.api.030101.xyz/?type=bestproxy")
+          # 验证IP格式
+          if ! [[ "$NEW_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "错误：获取的IP格式无效: $NEW_IP"
+            exit 1
+          fi
           echo "NEW_IP=$NEW_IP" >> $GITHUB_ENV
           echo "获取到新IP: $NEW_IP"
 
-      - name: Verify File Location
+      # 3. 验证文件存在
+      - name: Verify File Existence
         run: |
-          # 确认文件位置
-          echo "当前工作目录: $(pwd)"
-          echo "文件列表:"
-          ls -la
-          echo "ipurl.txt 内容:"
-          head -n 1 ipurl.txt
+          if [ ! -f "ipurl.txt" ]; then
+            echo "错误: ipurl.txt 文件不存在!"
+            echo "当前目录内容:"
+            ls -la
+            exit 1
+          fi
+          echo "文件验证通过"
 
+      # 4. 更新文件内容
       - name: Replace IP in File
         run: |
-          # 定位目标文件路径（仓库根目录）
           FILE_PATH="ipurl.txt"
           
-          # 使用 sed 替换第一行末尾的 IP 地址
-          OLD_IP=$(head -n 1 "$FILE_PATH" | grep -oE '@[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | cut -d '@' -f2)
-          sed -i "s|@$OLD_IP$|@${{ env.NEW_IP }}|" "$FILE_PATH"
+          # 提取当前IP
+          CURRENT_CONTENT=$(head -n 1 "$FILE_PATH")
+          OLD_IP=${CURRENT_CONTENT##*@}  # 获取@符号后的内容
+          
+          # 验证旧IP格式
+          if ! [[ "$OLD_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "错误：文件中IP格式无效: $OLD_IP"
+            exit 1
+          fi
+          
+          # 替换IP
+          sed -i "1s|@$OLD_IP|@${{ env.NEW_IP }}|" "$FILE_PATH"
           
           echo "文件修改完成:"
           echo "旧IP: $OLD_IP"
           echo "新IP: ${{ env.NEW_IP }}"
+          echo "当前文件内容:"
           head -n 1 "$FILE_PATH"
 
-      - name: Commit Changes
+      # 5. 提交更改
+      - name: Commit and Push Changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用自动生成的令牌
         run: |
+          # 配置Git用户
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # 添加更改
           git add ipurl.txt
+          git status
+          
+          # 提交更改
           git commit -m "Auto-Update: Replace proxy IP to ${{ env.NEW_IP }}"
+          
+          # 推送更改（使用GitHub提供的令牌）
           git push origin HEAD:${{ github.ref }}
