@@ -28,7 +28,7 @@ jobs:
       - name: Replace IP in File
         run: |
           # 定位目标文件路径
-          FILE_PATH="cloudflare_auto/ipurl.txt"
+          FILE_PATH="/cloudflare_auto/blob/main/ipurl.txt"
           
           # 使用 sed 替换第一行末尾的 IP 地址
           sed -i "1s|@[0-9.]*$|@${{ env.NEW_IP }}|" "$FILE_PATH"
