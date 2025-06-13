@@ -2,7 +2,7 @@ name: Update Cloudflare Proxy IP
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # 每三十分钟执行一次（UTC时间）
+    - cron: '0 * * * *'  # 每小时执行一次（UTC时间）
   workflow_dispatch:     # 支持手动触发
 
 jobs:
@@ -12,35 +12,44 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 获取完整提交历史
+          fetch-depth: 0
+          persist-credentials: false  # 确保提交权限正确
 
       - name: Fetch New Proxy IP
         id: get_ip
         run: |
-          # 调用 API 获取新 IP，保留响应中的 IP 地址
-          NEW_IP=$(curl -s "https://ipdb.api.030101.xyz/?type=bestproxy" \
-            -H "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7" \
-            -H "accept-language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6" \
-            -H "priority: u=0, i" \
-            -H "upgrade-insecure-requests: 1")
+          # 调用 API 获取新 IP
+          NEW_IP=$(curl -s "https://ipdb.api.030101.xyz/?type=bestproxy")
           echo "NEW_IP=$NEW_IP" >> $GITHUB_ENV
+          echo "获取到新IP: $NEW_IP"
+
+      - name: Verify File Location
+        run: |
+          # 确认文件位置
+          echo "当前工作目录: $(pwd)"
+          echo "文件列表:"
+          ls -la
+          echo "ipurl.txt 内容:"
+          head -n 1 ipurl.txt
 
       - name: Replace IP in File
         run: |
-          # 定位目标文件路径
-          FILE_PATH="/cloudflare_auto/blob/main/ipurl.txt"
+          # 定位目标文件路径（仓库根目录）
+          FILE_PATH="ipurl.txt"
           
           # 使用 sed 替换第一行末尾的 IP 地址
-          sed -i "1s|@[0-9.]*$|@${{ env.NEW_IP }}|" "$FILE_PATH"
+          OLD_IP=$(head -n 1 "$FILE_PATH" | grep -oE '@[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | cut -d '@' -f2)
+          sed -i "s|@$OLD_IP$|@${{ env.NEW_IP }}|" "$FILE_PATH"
           
-          # 检查是否修改成功
-          echo "Updated File Content:"
+          echo "文件修改完成:"
+          echo "旧IP: $OLD_IP"
+          echo "新IP: ${{ env.NEW_IP }}"
           head -n 1 "$FILE_PATH"
 
       - name: Commit Changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add cloudflare_auto/ipurl.txt
+          git add ipurl.txt
           git commit -m "Auto-Update: Replace proxy IP to ${{ env.NEW_IP }}"
-          git push
+          git push origin HEAD:${{ github.ref }}
