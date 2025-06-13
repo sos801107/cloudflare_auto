@@ -1,5 +1,3 @@
-以下是一个完整的 README.md 文件内容，包含了您要求的视觉元素、使用教程和订阅信息：
-
 ```markdown
 # 🌐 Cloudflare 优选反代IP自动更新库
 
