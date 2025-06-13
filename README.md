@@ -1,15 +1,7 @@
 ```markdown
 # 🌐 Cloudflare 优选反代IP自动更新库
 
-欢迎使用本项目！这是一个自动化维护 Cloudflare 优选IP和反代IP的解决方案，专为网络优化需求设计。项目提供自动更新的IP订阅服务，并支持一键部署到 GitHub Pages。
-
-[![Auto Update](https://img.shields.io/badge/自动更新-每30分钟一次-blue?logo=githubactions&logoColor=white)](https://github.com/$YOUR_USERNAME/$YOUR_REPO/actions)
-[![优选IP](https://img.shields.io/badge/优选IP-每日更新-green)](https://github.com/$YOUR_USERNAME/$YOUR_REPO)
-[![反代IP](https://img.shields.io/badge/反代IP-每30分钟刷新-orange)](https://github.com/$YOUR_USERNAME/$YOUR_REPO)
-[![License](https://img.shields.io/badge/license-MIT-purple)](LICENSE)
-[![GitHub Stars](https://img.shields.io/github/stars/$YOUR_USERNAME/$YOUR_REPO?style=social)](https://github.com/$YOUR_USERNAME/$YOUR_REPO)
-
-<img src="https://user-images.githubusercontent.com/447801/189489900-9e34cd90-3a6b-47fe-9d9a-96e5d9f6d3b2.png" width="800" alt="项目示意图">
+欢迎使用本项目！这是一个自动化维护 Cloudflare 优选IP和反代IP的解决方案，专为网络优化需求设计。项目提供自动更新的IP订阅服务，并支持一键部署到 CloudFlare Pages。
 
 ## ✨ 项目特色
 
@@ -17,10 +9,6 @@
   - 优选IP（江浙沪地区）每日更新
   - 反代IP每30分钟自动刷新
 - 📡 **即用型订阅链接**：
-  ```text
-  https://$YOUR_USERNAME.github.io/$YOUR_REPO/ip.txt
-  https://$YOUR_USERNAME.github.io/$YOUR_REPO/reverse_proxy.txt
-  ```
 - 🤖 **全自动化管理**：
   - GitHub Actions 定时任务
   - 自动提交更新到仓库
