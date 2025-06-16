@@ -1,8 +1,12 @@
-
+##以下为经过筛选，可直接使用的链接（Cloud Flare变量中填写）
+#上海： https://raw.githubusercontent.com/aosenqaq/cloudflare_auto/refs/heads/main/ipurl.txt
+#江苏：待完善
+#浙江：待完善
+。。。。。
 ## ⚠️ 注意事项
 
 1. IP列表可能会因网络状况动态变化
-2. 优选IP针对江浙沪地区优化，其他地区效果可能不同
+2. 优选IP并不表示当前为您最优选线路，建议自行部署“自动优选”服务
 3. 请勿滥用API接口，以免触发速率限制
 
 ## 🤝 贡献支持
